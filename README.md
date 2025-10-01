@@ -1,2 +1,2 @@
 # questbridge-kwala
-Cross-chain gaming reward automation using Kwala – Hacker House
+# QuestBridge\nAutomated cross-chain NFT rewards for Web3 games. Built for Kwala Hacker House.
