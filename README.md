@@ -32,14 +32,14 @@ QuestBridge is a smart contract system that enables seamless cross-chain quest c
 
 #### Polygon Amoy Testnet (QuestToken)
 ```
-📄 QuestToken: [DEPLOYED_ADDRESS_HERE]
-🔗 PolygonScan: https://amoy.polygonscan.com/address/[DEPLOYED_ADDRESS_HERE]
+📄 QuestToken: 0xfba199c705761D98aD1cD98c34C0d544e39c1984
+🔗 PolygonScan: https://amoy.polygonscan.com/address/0xfba199c705761D98aD1cD98c34C0d544e39c1984
 ```
 
 #### Sepolia Testnet (RewardNFT)
 ```
-📄 RewardNFT: [DEPLOYED_ADDRESS_HERE]
-🔗 Etherscan: https://sepolia.etherscan.org/address/[DEPLOYED_ADDRESS_HERE]
+📄 RewardNFT: 0x8c73284b55cb55EB46Dd42617bA6213037e602e9
+🔗 Etherscan: https://sepolia.etherscan.io/address/0x8c73284b55cb55EB46Dd42617bA6213037e602e9
 ```
 
 ### Contract Details

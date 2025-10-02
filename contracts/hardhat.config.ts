@@ -11,8 +11,15 @@ const config: HardhatUserConfig = {
       optimizer: {
         enabled: true,
         runs: 200
-      }
+      },
+      viaIR: false
     }
+  },
+  paths: {
+    artifacts: "./artifacts",
+    cache: "./cache",
+    sources: "./",
+    tests: "./test"
   },
   networks: {
     amoy: {

@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import hre from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -14,7 +14,7 @@ interface DeploymentInfo {
 async function deployQuestToken() {
   console.log("Deploying QuestToken to Amoy...");
 
-  const questTokenFactory = await ethers.getContractFactory("QuestToken");
+  const questTokenFactory = await hre.ethers.getContractFactory("QuestToken");
   const questToken = await questTokenFactory.deploy();
   await questToken.deployed();
 
@@ -26,7 +26,7 @@ async function deployQuestToken() {
 async function deployRewardNFT() {
   console.log("Deploying RewardNFT to Sepolia...");
 
-  const rewardNFTFactory = await ethers.getContractFactory("RewardNFT");
+  const rewardNFTFactory = await hre.ethers.getContractFactory("RewardNFT");
   const rewardNFT = await rewardNFTFactory.deploy();
   await rewardNFT.deployed();
 
@@ -72,7 +72,7 @@ async function main() {
 
   console.log(`Deploying to network: ${network}`);
 
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
   console.log(`Deploying from address: ${deployer.address}`);
 
   let questTokenAddress: string | undefined;
