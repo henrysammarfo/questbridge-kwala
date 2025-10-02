@@ -11,11 +11,15 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "5.0.0",
     "@typechain/hardhat": "9.1.0",
+    "@types/mocha": "^10.0.10",
     "hardhat": "2.26.0",
+    "ts-node": "^10.9.2",
     "typescript": "5.6.3"
   },
   "dependencies": {
-    "viem": "2.21.3",
-    "dotenv": "16.4.5"
+    "@openzeppelin/contracts": "^5.0.2",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.15.0",
+    "viem": "2.21.3"
   }
 }
