@@ -83,7 +83,7 @@ logging:
 
 notifications:
   - type: "discord"
-    webhook_url: "${DISCORD_WEBHOOK_URL}"
+    webhook_url: "https://discord.com/api/webhooks/1423312336025944074/XDVvx023bHnmCV0_AAJjYTGMj_OEXYgUOvUWO62F4eHZYVL-cWA1-Ubn20eFFG9P8lvK"
     events:
       - "reward_distributed"
       - "automation_error"
@@ -91,7 +91,7 @@ notifications:
 
   - type: "email"
     recipients:
-      - "admin@kwalahackerhouse.com"
+      - "henrysammarfo@gmail.com"
     events:
       - "automation_error"
       - "deployment_failed"
