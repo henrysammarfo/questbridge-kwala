@@ -1,0 +1,50 @@
+# Placeholder: Cross-chain reward automation
+# This file defines the automation rules for QuestBridge reward distribution
+
+version: "1.0"
+name: "QuestBridge Reward Automation"
+description: "Automated reward distribution for completed quests across multiple chains"
+
+# Automation triggers
+triggers:
+  - event: "quest_completed"
+    source: "smart_contract"
+    conditions:
+      - field: "completion_status"
+        value: "verified"
+
+# Reward distribution rules
+rewards:
+  - type: "nft_mint"
+    chain: "polygon_amoy"
+    contract_address: "0x0000000000000000000000000000000000000000" # TODO: Replace with actual contract
+    metadata:
+      name: "Quest Completion NFT"
+      description: "Awarded for completing a QuestBridge quest"
+      image: "https://via.placeholder.com/300x300?text=Quest+Reward"
+
+  - type: "token_transfer"
+    chain: "ethereum_sepolia"
+    token_address: "0x0000000000000000000000000000000000000000" # TODO: Replace with actual token
+    amount: "100" # Base reward amount
+
+# Cross-chain bridging (future enhancement)
+bridge:
+  enabled: false
+  source_chain: "polygon_amoy"
+  target_chain: "ethereum_sepolia"
+  bridge_contract: "0x0000000000000000000000000000000000000000" # TODO: Replace with bridge contract
+
+# Notification settings
+notifications:
+  - type: "discord"
+    webhook_url: "${DISCORD_WEBHOOK_URL}"
+    events:
+      - "quest_completed"
+      - "reward_distributed"
+
+  - type: "email"
+    recipients:
+      - "admin@kwalahackerhouse.com"
+    events:
+      - "automation_error"

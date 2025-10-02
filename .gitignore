@@ -1,0 +1,15 @@
+node_modules/
+.env*
+*.key
+dist/
+.next/
+out/
+build/
+coverage/
+*.log
+.DS_Store
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
