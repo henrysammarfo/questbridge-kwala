@@ -1,0 +1,59 @@
+{
+  "colors": {
+    "primary": "oklch(0.205 0 0)", // ~#2E2E2E (dark gray)
+    "primaryForeground": "oklch(0.985 0 0)", // ~#FFFFFF (white)
+    "secondary": "oklch(0.97 0 0)", // ~#F5F5F5 (light gray)
+    "secondaryForeground": "oklch(0.205 0 0)", // ~#2E2E2E
+    "accent": "oklch(0.97 0 0)", // ~#F5F5F5
+    "accentForeground": "oklch(0.205 0 0)", // ~#2E2E2E
+    "background": "oklch(1 0 0)", // ~#FFFFFF
+    "foreground": "oklch(0.145 0 0)", // ~#212121 (darker gray)
+    "card": "oklch(1 0 0)", // ~#FFFFFF
+    "cardForeground": "oklch(0.145 0 0)", // ~#212121
+    "popover": "oklch(1 0 0)", // ~#FFFFFF
+    "popoverForeground": "oklch(0.145 0 0)", // ~#212121
+    "muted": "oklch(0.97 0 0)", // ~#F5F5F5
+    "mutedForeground": "oklch(0.556 0 0)", // ~#8A8A8A (mid gray)
+    "destructive": "oklch(0.577 0.245 27.325)", // ~#D32F2F (red)
+    "destructiveForeground": "oklch(0.985 0 0)", // ~#FFFFFF
+    "border": "oklch(0.922 0 0)", // ~#E0E0E0 (light border)
+    "input": "oklch(0.922 0 0)", // ~#E0E0E0
+    "ring": "oklch(0.708 0 0)", // ~#B0B0B0 (gray ring)
+    "chart1": "oklch(0.646 0.222 41.116)", // ~#F28C38 (orange)
+    "chart2": "oklch(0.6 0.118 184.704)", // ~#4CAF50 (green)
+    "chart3": "oklch(0.398 0.07 227.392)", // ~#0288D1 (blue)
+    "chart4": "oklch(0.828 0.189 84.429)", // ~#FFCA28 (yellow)
+    "chart5": "oklch(0.769 0.188 70.08)", // ~#FFEB3B (light yellow)
+    "sidebar": "oklch(0.985 0 0)", // ~#FAFAFA (near white)
+    "sidebarForeground": "oklch(0.145 0 0)", // ~#212121
+    "sidebarPrimary": "oklch(0.205 0 0)", // ~#2E2E2E
+    "sidebarPrimaryForeground": "oklch(0.985 0 0)", // ~#FFFFFF
+    "sidebarAccent": "oklch(0.97 0 0)", // ~#F5F5F5
+    "sidebarAccentForeground": "oklch(0.205 0 0)", // ~#2E2E2E
+    "sidebarBorder": "oklch(0.922 0 0)", // ~#E0E0E0
+    "sidebarRing": "oklch(0.708 0 0)" // ~#B0B0B0
+  },
+  "typography": {
+    "fontSans": "Geist, sans-serif",
+    "fontSerif": "Source Serif 4, serif",
+    "fontMono": "Geist Mono, monospace",
+    "defaults": {
+      "body": { "size": "16px", "weight": "normal", "color": "oklch(0.145 0 0)" }, // ~#212121
+      "heading1": { "size": "24px", "weight": "bold", "color": "oklch(0.145 0 0)" },
+      "heading2": { "size": "20px", "weight": "medium", "color": "oklch(0.145 0 0)" },
+      "lineHeight": 1.5
+    }
+  },
+  "radius": "0.625rem",
+  "shadow": {
+    "xOffset": "0px",
+    "yOffset": "1px",
+    "blur": "2px",
+    "spread": "0px",
+    "color": "#0000000d" // ~rgba(0, 0, 0, 0.05)
+  },
+  "assets": {
+    "logo": "https://via.placeholder.com/300x100?text=QuestBridge",
+    "icons": "https://via.placeholder.com/24x24?text=Icon"
+  }
+}
