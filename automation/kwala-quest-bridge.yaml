@@ -1,113 +1,35 @@
-# QuestBridge Kwala Integration - Production Configuration
-# Automated cross-chain NFT rewards for Web3 games using deployed contracts
-
-version: "1.0"
-name: "QuestBridge Kwala Integration"
-description: "Production-grade automated reward distribution for QuestBridge quests"
-
-# Network configurations
-networks:
-  polygon_amoy:
-    rpc_url: "https://polygon-amoy.g.alchemy.com/v2/KzuepD5Zw2hijNQMLKJkf"
-    chain_id: 80002
-    quest_token_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
-    confirmations: 1
-
-  ethereum_sepolia:
-    rpc_url: "https://eth-sepolia.g.alchemy.com/v2/Sxur7QspibmU0lrSDVXse"
-    chain_id: 11155111
-    reward_nft_address: "0x8c73284b55cb55EB46Dd42617bA6213037e602e9"
-    confirmations: 1
-
-# Event monitoring and triggers
-triggers:
-  - name: "quest_token_transfer"
-    type: "event_monitor"
-    network: "polygon_amoy"
-    contract_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
-    event_signature: "QuestCompleted(address,uint256)"
-    polling_interval: 30  # seconds
-    retry_attempts: 3
-    retry_delay: 5  # seconds
-
-  - name: "nft_mint_request"
-    type: "webhook"
-    endpoint: "/api/questbridge/webhook"
-    authentication: "wallet_signature"
-    conditions:
-      - field: "quest_status"
-        operator: "equals"
-        value: "completed"
-
-# Reward distribution rules
-rewards:
-  - name: "nft_reward"
-    trigger: "quest_token_transfer"
-    type: "nft_mint"
-    network: "ethereum_sepolia"
-    contract_address: "0x8c73284b55cb55EB46Dd42617bA6213037e602e9"
-    method: "mintReward"
-    parameters:
-      recipient_field: "to_address"
-    metadata:
-      base_uri: "https://raw.githubusercontent.com/henrysammarfo/questbridge-kwala/main/metadata/"
-      dynamic_uri: true
-      template: "nft.json"
-    retry_attempts: 3
-    retry_delay: 10
-
-  - name: "token_reward"
-    trigger: "nft_mint_request"
-    type: "token_transfer"
-    network: "polygon_amoy"
-    token_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
-    amount: "100000000000000000000"  # 100 tokens in wei
-    method: "transfer"
-    parameters:
-      recipient_field: "player_address"
-    retry_attempts: 3
-    retry_delay: 5
-
-# Error handling and monitoring
-error_handling:
-  max_retries: 3
-  backoff_strategy: "exponential"
-  circuit_breaker:
-    failure_threshold: 5
-    recovery_timeout: 300  # 5 minutes
-
-# Logging and notifications
-logging:
-  level: "info"
-  format: "json"
-
-notifications:
-  - type: "discord"
-    webhook_url: "https://discord.com/api/webhooks/1423312336025944074/XDVvx023bHnmCV0_AAJjYTGMj_OEXYgUOvUWO62F4eHZYVL-cWA1-Ubn20eFFG9P8lvK"
-    events:
-      - "reward_distributed"
-      - "automation_error"
-      - "circuit_breaker_activated"
-
-  - type: "email"
-    recipients:
-      - "henrysammarfo@gmail.com"
-    events:
-      - "automation_error"
-      - "deployment_failed"
-
-# Health checks
-health_checks:
-  - name: "contract_connectivity"
-    type: "contract_call"
-    interval: 60  # seconds
-    contract_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
-    method: "getMaxSupply"
-    network: "polygon_amoy"
-
-  - name: "balance_monitoring"
-    type: "balance_check"
-    interval: 120  # seconds
-    threshold: "1000000000000000000000"  # 1000 tokens
-    contract_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
-    network: "polygon_amoy"
+Name: QuestBridge-Kwala-Integration_
+Trigger:
+  TriggerSourceContract: 0xfba199c705761D98aD1cD98c34C0d544e39c1984
+  TriggerChainID: 80002
+  TriggerEventName: QuestCompleted(address,uint256)
+  TriggerEventFilter: NA
+  TriggerSourceContractABI: WwogIHsKICAgICJ0eXBlIjogImV2ZW50IiwKICAgICJuYW1lIjogIlF1ZXN0Q29tcGxldGVkIiwKICAgICJpbnB1dHMiOiBbCiAgICAgIHsibmFtZSI6ICJwbGF5ZXIiLCAidHlwZSI6ICJhZGRyZXNzIiwgImluZGV4ZWQiOiB0cnVlfSwKICAgICAgeyJuYW1lIjogImFtb3VudCIsICJ0eXBlIjogInVpbnQyNTYiLCAiaW5kZXhlZCI6IGZhbHNlfQogICAgXQogIH0KXQ==
+  RecurringSourceContract: 0xfba199c705761D98aD1cD98c34C0d544e39c1984
+  RecurringChainID: 80002
+  RecurringEventName: QuestCompleted(address,uint256)
+  RecurringEventFilter: NA
+  RecurringSourceContractABI: WwogIHsKICAgICJ0eXBlIjogImV2ZW50IiwKICAgICJuYW1lIjogIlF1ZXN0Q29tcGxldGVkIiwKICAgICJpbnB1dHMiOiBbCiAgICAgIHsibmFtZSI6ICJwbGF5ZXIiLCAidHlwZSI6ICJhZGRyZXNzIiwgImluZGV4ZWQiOiB0cnVlfSwKICAgICAgeyJuYW1lIjogImFtb3VudCIsICJ0eXBlIjogInVpbnQyNTYiLCAiaW5kZXhlZCI6IGZhbHNlfQogICAgXQogIH0KXQ==
+  RepeatEvery: event
+  ExecuteAfter: event
+  ExpiresIn: 1781796603
+  Meta: QuestBridge Trigger for QuestCompleted
+  ActionStatusNotificationPOSTURL: https://discord.com/api/webhooks/1423312336025944074/XDVvx023bHnmCV0_AAJjYTGMj_OEXYgUOvUWO62F4eHZYVL-cWA1-Ubn20eFFG9P8lvK
+  ActionStatusNotificationAPIKey: NA
+Actions:
+  - Name: NFT_Reward_Mint
+    Type: call
+    APIEndpoint: NA
+    APIPayload:
+      Message: NA
+    TargetContract: 0x8c73284b55cb55EB46Dd42617bA6213037e602e9
+    TargetFunction: function mintReward(address to)
+    TargetParams:
+      - { "name": "to", "value": "{{trigger.player}}" }
+    ChainID: 80002
+    EncodedABI: NA
+    Bytecode: NA
+    Metadata: NA
+    RetriesUntilSuccess: 5
+Execution:
+  Mode: parallel
