@@ -1,50 +1,113 @@
-# Placeholder: Cross-chain reward automation
-# This file defines the automation rules for QuestBridge reward distribution
+# QuestBridge Kwala Integration - Production Configuration
+# Automated cross-chain NFT rewards for Web3 games using deployed contracts
 
 version: "1.0"
-name: "QuestBridge Reward Automation"
-description: "Automated reward distribution for completed quests across multiple chains"
+name: "QuestBridge Kwala Integration"
+description: "Production-grade automated reward distribution for QuestBridge quests"
 
-# Automation triggers
+# Network configurations
+networks:
+  polygon_amoy:
+    rpc_url: "https://polygon-amoy.g.alchemy.com/v2/KzuepD5Zw2hijNQMLKJkf"
+    chain_id: 80002
+    quest_token_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
+    confirmations: 1
+
+  ethereum_sepolia:
+    rpc_url: "https://eth-sepolia.g.alchemy.com/v2/Sxur7QspibmU0lrSDVXse"
+    chain_id: 11155111
+    reward_nft_address: "0x8c73284b55cb55EB46Dd42617bA6213037e602e9"
+    confirmations: 1
+
+# Event monitoring and triggers
 triggers:
-  - event: "quest_completed"
-    source: "smart_contract"
+  - name: "quest_token_transfer"
+    type: "event_monitor"
+    network: "polygon_amoy"
+    contract_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
+    event_signature: "QuestCompleted(address,uint256)"
+    polling_interval: 30  # seconds
+    retry_attempts: 3
+    retry_delay: 5  # seconds
+
+  - name: "nft_mint_request"
+    type: "webhook"
+    endpoint: "/api/questbridge/webhook"
+    authentication: "wallet_signature"
     conditions:
-      - field: "completion_status"
-        value: "verified"
+      - field: "quest_status"
+        operator: "equals"
+        value: "completed"
 
 # Reward distribution rules
 rewards:
-  - type: "nft_mint"
-    chain: "polygon_amoy"
-    contract_address: "0x0000000000000000000000000000000000000000" # TODO: Replace with actual contract
+  - name: "nft_reward"
+    trigger: "quest_token_transfer"
+    type: "nft_mint"
+    network: "ethereum_sepolia"
+    contract_address: "0x8c73284b55cb55EB46Dd42617bA6213037e602e9"
+    method: "mintReward"
+    parameters:
+      recipient_field: "to_address"
     metadata:
-      name: "Quest Completion NFT"
-      description: "Awarded for completing a QuestBridge quest"
-      image: "https://via.placeholder.com/300x300?text=Quest+Reward"
+      base_uri: "https://raw.githubusercontent.com/henrysammarfo/questbridge-kwala/main/metadata/"
+      dynamic_uri: true
+      template: "nft.json"
+    retry_attempts: 3
+    retry_delay: 10
 
-  - type: "token_transfer"
-    chain: "ethereum_sepolia"
-    token_address: "0x0000000000000000000000000000000000000000" # TODO: Replace with actual token
-    amount: "100" # Base reward amount
+  - name: "token_reward"
+    trigger: "nft_mint_request"
+    type: "token_transfer"
+    network: "polygon_amoy"
+    token_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
+    amount: "100000000000000000000"  # 100 tokens in wei
+    method: "transfer"
+    parameters:
+      recipient_field: "player_address"
+    retry_attempts: 3
+    retry_delay: 5
 
-# Cross-chain bridging (future enhancement)
-bridge:
-  enabled: false
-  source_chain: "polygon_amoy"
-  target_chain: "ethereum_sepolia"
-  bridge_contract: "0x0000000000000000000000000000000000000000" # TODO: Replace with bridge contract
+# Error handling and monitoring
+error_handling:
+  max_retries: 3
+  backoff_strategy: "exponential"
+  circuit_breaker:
+    failure_threshold: 5
+    recovery_timeout: 300  # 5 minutes
 
-# Notification settings
+# Logging and notifications
+logging:
+  level: "info"
+  format: "json"
+
 notifications:
   - type: "discord"
     webhook_url: "${DISCORD_WEBHOOK_URL}"
     events:
-      - "quest_completed"
       - "reward_distributed"
+      - "automation_error"
+      - "circuit_breaker_activated"
 
   - type: "email"
     recipients:
       - "admin@kwalahackerhouse.com"
     events:
       - "automation_error"
+      - "deployment_failed"
+
+# Health checks
+health_checks:
+  - name: "contract_connectivity"
+    type: "contract_call"
+    interval: 60  # seconds
+    contract_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
+    method: "getMaxSupply"
+    network: "polygon_amoy"
+
+  - name: "balance_monitoring"
+    type: "balance_check"
+    interval: 120  # seconds
+    threshold: "1000000000000000000000"  # 1000 tokens
+    contract_address: "0xfba199c705761D98aD1cD98c34C0d544e39c1984"
+    network: "polygon_amoy"

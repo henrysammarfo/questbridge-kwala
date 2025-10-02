@@ -127,30 +127,58 @@ The test suite includes:
 #### Deploy QuestToken to Amoy
 ```bash
 cd contracts
-node scripts/deploy-simple.js amoy
+npx hardhat run --network amoy --no-compile <<EOF
+require('dotenv').config();
+const { ethers } = require('hardhat');
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log('Deploying QuestToken with:', deployer.address);
+  const QuestToken = await ethers.getContractFactory('QuestToken');
+  const questToken = await QuestToken.deploy();
+  await questToken.waitForDeployment();
+  const address = await questToken.getAddress();
+  console.log('QuestToken deployed to:', address);
+}
+main().catch((error) => { console.error(error); process.exit(1); });
+EOF
 ```
 
 #### Deploy RewardNFT to Sepolia
 ```bash
 cd contracts
-node scripts/deploy-simple.js sepolia
+npx hardhat run --network sepolia --no-compile <<EOF
+require('dotenv').config();
+const { ethers } = require('hardhat');
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log('Deploying RewardNFT with:', deployer.address);
+  const RewardNFT = await ethers.getContractFactory('RewardNFT');
+  const rewardNFT = await RewardNFT.deploy();
+  await rewardNFT.waitForDeployment();
+  const address = await rewardNFT.getAddress();
+  console.log('RewardNFT deployed to:', address);
+}
+main().catch((error) => { console.error(error); process.exit(1); });
+EOF
 ```
 
-#### Alternative Deployment (TypeScript)
-```bash
-cd contracts
-npx hardhat run scripts/deploy.ts --network amoy
-npx hardhat run scripts/deploy.ts --network sepolia
-```
+### Kwala Integration
 
-### Verification
+#### Deploy YAML Automation
+Import the automation configuration to your Kwala workspace:
 
-Prepare verification commands:
-```bash
-cd contracts
-npx hardhat run scripts/verify.ts --network amoy
-npx hardhat run scripts/verify.ts --network sepolia
-```
+1. **Import Configuration**: Import `automation/kwala-quest-bridge.yaml` to your Kwala workspace `[KWALA_WORKSPACE_ID]`
+2. **Deploy to Testnet**: Deploy the automation rules to monitor quest completions and distribute rewards
+3. **Wallet Authentication**: No API keys required - uses wallet signature authentication
+4. **Real Event Parsing**: Monitors actual blockchain events with 3x retry logic for production reliability
+
+**Deployed Contract Addresses**:
+- **QuestToken (Amoy)**: `0xfba199c705761D98aD1cD98c34C0d544e39c1984`
+- **RewardNFT (Sepolia)**: `0x8c73284b55cb55EB46Dd42617bA6213037e602e9`
+
+**Metadata URLs**:
+- Base URI: `https://raw.githubusercontent.com/henrysammarfo/questbridge-kwala/main/metadata/`
+- NFT Metadata: `https://raw.githubusercontent.com/henrysammarfo/questbridge-kwala/main/metadata/nft.json`
 
 ## Architecture
 
