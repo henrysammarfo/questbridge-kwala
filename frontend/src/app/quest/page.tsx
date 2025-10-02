@@ -1,38 +1,110 @@
 'use client'
 
-import { useState } from 'react'
-import { useAccount } from 'wagmi'
+import { useState, useEffect } from 'react'
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useWatchContractEvent } from 'wagmi'
+import { toast, Toaster } from 'react-hot-toast'
+import { questTokenABI, QUEST_TOKEN_ADDRESS, DEPLOYER_ADDRESS } from '@/lib/abi'
 
 export default function Quest() {
   const { isConnected, address } = useAccount()
-  const [formData, setFormData] = useState({
-    questName: '',
-    description: '',
-    difficulty: 'beginner'
+  const [tokenAmount, setTokenAmount] = useState<number>(1)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const { writeContract: writeApprove, data: approveHash, isPending: isApprovePending } = useWriteContract()
+  const { writeContract: writeTransfer, data: transferHash, isPending: isTransferPending } = useWriteContract()
+
+  const { isLoading: isApproveConfirming } = useWaitForTransactionReceipt({
+    hash: approveHash,
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // TODO: Implement quest submission logic
-    console.log('Quest submission:', formData)
+  const { isLoading: isTransferConfirming } = useWaitForTransactionReceipt({
+    hash: transferHash,
+  })
+
+  // Watch for QuestCompleted events
+  useWatchContractEvent({
+    address: QUEST_TOKEN_ADDRESS,
+    abi: questTokenABI,
+    eventName: 'QuestCompleted',
+    onLogs(logs) {
+      const latestLog = logs[logs.length - 1]
+      if (latestLog.args.player?.toLowerCase() === address?.toLowerCase()) {
+        toast.success(`Quest completed! You earned ${latestLog.args.amount} tokens!`, {
+          duration: 5000,
+          style: {
+            background: 'var(--card)',
+            color: 'var(--card-foreground)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            boxShadow: 'var(--shadow-x-offset) var(--shadow-y-offset) var(--shadow-blur) var(--shadow-spread) var(--shadow-color)',
+          },
+        })
+      }
+    },
+  })
+
+  const handleCompleteQuest = async () => {
+    if (!address || tokenAmount < 1 || tokenAmount > 10) {
+      toast.error('Please enter a valid token amount between 1 and 10')
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      // First approve the tokens
+      await writeApprove({
+        address: QUEST_TOKEN_ADDRESS,
+        abi: questTokenABI,
+        functionName: 'approve',
+        args: [DEPLOYER_ADDRESS, BigInt(tokenAmount)],
+      })
+
+      // Wait a bit for approval to be mined
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Then transfer the tokens
+      await writeTransfer({
+        address: QUEST_TOKEN_ADDRESS,
+        abi: questTokenABI,
+        functionName: 'transfer',
+        args: [DEPLOYER_ADDRESS, BigInt(tokenAmount)],
+      })
+
+      toast.success('Quest completion transaction submitted!')
+    } catch (error) {
+      console.error('Quest completion error:', error)
+      toast.error('Failed to complete quest. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+  useEffect(() => {
+    if (isApproveConfirming) {
+      toast.loading('Confirming token approval...', { id: 'approve' })
+    } else {
+      toast.dismiss('approve')
+    }
+  }, [isApproveConfirming])
+
+  useEffect(() => {
+    if (isTransferConfirming) {
+      toast.loading('Completing quest...', { id: 'transfer' })
+    } else {
+      toast.dismiss('transfer')
+    }
+  }, [isTransferConfirming])
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-3xl font-bold font-sans text-foreground mb-4">
             Connect Your Wallet
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Please connect your wallet to access the quest creation form.
+          <p className="text-muted-foreground font-sans">
+            Please connect your wallet to complete quests and earn rewards.
           </p>
         </div>
       </div>
@@ -40,85 +112,58 @@ export default function Quest() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-16">
+    <div className="min-h-screen bg-background py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Create New Quest
+          <div className="bg-card rounded-[var(--radius)] shadow-[var(--shadow-x-offset)_var(--shadow-y-offset)_var(--shadow-blur)_var(--shadow-spread)_var(--shadow-color)] p-8 border border-border">
+            <h1 className="text-3xl font-bold font-sans text-card-foreground mb-2">
+              Complete Quest
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 mb-8">
+            <p className="text-muted-foreground font-sans mb-8">
               Connected as: {address?.slice(0, 6)}...{address?.slice(-4)}
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-6">
               <div>
-                <label htmlFor="questName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Quest Name
+                <label htmlFor="tokenAmount" className="block text-sm font-medium font-sans text-foreground mb-2">
+                  Token Amount (1-10)
                 </label>
                 <input
-                  type="text"
-                  id="questName"
-                  name="questName"
-                  value={formData.questName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Enter quest name"
+                  type="number"
+                  id="tokenAmount"
+                  min="1"
+                  max="10"
+                  value={tokenAmount}
+                  onChange={(e) => setTokenAmount(Number(e.target.value))}
+                  className="w-full px-4 py-3 bg-input border border-border rounded-[var(--radius)] focus:ring-2 focus:ring-ring focus:border-transparent text-foreground font-sans placeholder:text-muted-foreground"
+                  placeholder="Enter amount (1-10)"
                   required
                 />
               </div>
 
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Describe the quest requirements and objectives"
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Difficulty Level
-                </label>
-                <select
-                  id="difficulty"
-                  name="difficulty"
-                  value={formData.difficulty}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  type="submit"
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
-                >
-                  Create Quest
-                </button>
-                <button
-                  type="button"
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 py-3 px-6 rounded-lg font-semibold transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+              <button
+                onClick={handleCompleteQuest}
+                disabled={isLoading || isApprovePending || isTransferPending}
+                className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground py-3 px-6 rounded-[var(--radius)] font-semibold font-sans transition-colors"
+              >
+                {isLoading || isApprovePending || isTransferPending ? 'Processing...' : 'Complete Quest'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: 'var(--card)',
+            color: 'var(--card-foreground)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            boxShadow: 'var(--shadow-x-offset) var(--shadow-y-offset) var(--shadow-blur) var(--shadow-spread) var(--shadow-color)',
+          },
+        }}
+      />
     </div>
   )
 }

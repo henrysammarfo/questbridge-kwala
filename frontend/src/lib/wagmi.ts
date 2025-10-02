@@ -13,6 +13,7 @@ export const config = createConfig({
     [polygonAmoy.id]: http(process.env.NEXT_PUBLIC_ALCHEMY_MUMBAI_URL),
     [sepolia.id]: http(process.env.NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL),
   },
+  ssr: true, // For Next.js SSR support
 })
 
 declare module 'wagmi' {

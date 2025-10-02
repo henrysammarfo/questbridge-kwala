@@ -1,36 +1,170 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QuestBridge: Cross-Chain Rewards Frontend
+
+A modern, responsive Web3 frontend for the QuestBridge platform that enables users to complete quests and earn NFT rewards on the Polygon Amoy testnet.
+
+## Features
+
+- **🌈 Wallet Connection**: Seamless integration with RainbowKit for multi-wallet support
+- **⛓️ Multi-Chain Support**: Live interactions with Polygon Amoy and Sepolia testnets
+- **🎯 Quest Completion**: Interactive form to complete quests with token rewards (1-10 tokens)
+- **🎨 Professional Design**: Built with a comprehensive design system using OKLCH colors
+- **📱 Mobile-First**: Fully responsive design that works on all devices
+- **🔥 Real-Time Updates**: Live contract event monitoring for quest completions
+- **🧪 Comprehensive Testing**: Full test coverage with Vitest and React Testing Library
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Styling**: Tailwind CSS with custom design system
+- **Web3**: Wagmi v2 + Viem for blockchain interactions
+- **Wallet**: RainbowKit for wallet connection
+- **Testing**: Vitest + React Testing Library
+- **Notifications**: React Hot Toast
+- **TypeScript**: Full type safety
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- npm/yarn/pnpm
+- A Web3 wallet (MetaMask recommended)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd questbridge-kwala/frontend
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+
+   Create a `.env.local` file in the frontend directory:
+   ```env
+   NEXT_PUBLIC_ALCHEMY_MUMBAI_URL=https://polygon-amoy.g.alchemy.com/v2/YOUR_API_KEY
+   NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## Usage
+
+1. **Connect Your Wallet**: Click the "Connect Wallet" button and select your preferred Web3 wallet
+2. **Switch to Amoy**: Use the chain switcher to connect to Polygon Amoy testnet
+3. **Complete Quests**: Navigate to the quest page and enter a token amount (1-10)
+4. **Earn Rewards**: Submit the quest to earn tokens and NFT rewards
+
+## Smart Contracts
+
+- **QuestToken**: `0xfba199c705761D98aD1cD98c34C0d544e39c1984`
+- **Network**: Polygon Amoy Testnet (Chain ID: 80002)
+
+## Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run test` - Run Vitest tests
+
+### Project Structure
+
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx      # Root layout with providers
+│   │   ├── page.tsx        # Hero page with wallet connection
+│   │   ├── quest/page.tsx  # Quest completion form
+│   │   └── providers.tsx   # Wagmi + RainbowKit providers
+│   ├── lib/
+│   │   ├── wagmi.ts        # Web3 configuration
+│   │   └── abi.ts          # Smart contract ABIs
+│   └── test/
+│       ├── setup.ts        # Test configuration
+│       └── quest.test.tsx  # Quest component tests
+├── public/                 # Static assets
+└── design-system.json      # Design tokens
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Vercel (Recommended)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Install Vercel CLI**
+   ```bash
+   npm i -g vercel
+   ```
 
-## Learn More
+2. **Login to Vercel**
+   ```bash
+   vercel login
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. **Deploy to Production**
+   ```bash
+   vercel --prod
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Set Environment Variables**
+   - Go to your Vercel dashboard
+   - Navigate to your project settings
+   - Add the environment variables from `.env.local`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Live URL
 
-## Deploy on Vercel
+🚀 **Production Deployment**: [https://your-app.vercel.app](https://your-app.vercel.app) *(Replace with actual URL after deployment)*
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Testing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Run the comprehensive test suite:
+
+```bash
+npm run test
+```
+
+Tests include:
+- Wallet connection states
+- Quest completion functionality
+- Token amount validation
+- Real-time event monitoring
+- Error handling
+
+## Design System
+
+The application uses a professional design system with:
+- **Colors**: OKLCH color space mapped to hex values
+- **Typography**: Geist font family for modern, readable text
+- **Spacing**: Consistent radius (0.625rem) and shadows
+- **Components**: Reusable, accessible UI components
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details
+
+---
+
+Built with ❤️ for the Kwala Hacker House community
