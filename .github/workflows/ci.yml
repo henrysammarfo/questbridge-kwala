@@ -1,0 +1,191 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Frontend Tests
+  frontend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: Run ESLint
+      run: npm run lint
+
+    - name: Run unit tests
+      run: npm run test
+
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_ALCHEMY_MUMBAI_URL: ${{ secrets.NEXT_PUBLIC_ALCHEMY_MUMBAI_URL }}
+        NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL: ${{ secrets.NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL }}
+
+  # Contract Tests
+  contract-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./contracts
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: contracts/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Compile contracts
+      run: npx hardhat compile
+
+    - name: Run contract tests
+      run: npm run test
+      env:
+        MUMBAI_RPC: ${{ secrets.MUMBAI_RPC }}
+        SEPOLIA_RPC: ${{ secrets.SEPOLIA_RPC }}
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
+  # E2E Tests
+  e2e-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_ALCHEMY_MUMBAI_URL: ${{ secrets.NEXT_PUBLIC_ALCHEMY_MUMBAI_URL }}
+        NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL: ${{ secrets.NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL }}
+
+    - name: Run E2E tests
+      run: npm run test:e2e
+      env:
+        CI: true
+
+  # Security Audit
+  security-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+
+    - name: Run frontend npm audit
+      run: cd frontend && npm audit --audit-level=moderate
+      continue-on-error: true
+
+  # Bundle Analysis
+  bundle-analysis:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: Generate bundle analysis
+      run: npx cross-env ANALYZE=true npm run build
+      env:
+        NEXT_PUBLIC_ALCHEMY_MUMBAI_URL: ${{ secrets.NEXT_PUBLIC_ALCHEMY_MUMBAI_URL }}
+        NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL: ${{ secrets.NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL }}
+
+    - name: Upload bundle analysis
+      uses: actions/upload-artifact@v4
+      with:
+        name: bundle-analysis-report
+        path: frontend/.next/analyze/
+
+  # Deployment (Manual trigger only)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [frontend-test, e2e-test, security-audit]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install Vercel CLI
+      run: npm install --global vercel@latest
+
+    - name: Pull Vercel environment information
+      run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+    - name: Build project artifacts
+      run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      env:
+        NEXT_PUBLIC_ALCHEMY_MUMBAI_URL: ${{ secrets.NEXT_PUBLIC_ALCHEMY_MUMBAI_URL }}
+        NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL: ${{ secrets.NEXT_PUBLIC_ALCHEMY_SEPOLIA_URL }}
+
+    - name: Deploy project artifacts to Vercel
+      run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

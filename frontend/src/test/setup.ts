@@ -11,36 +11,44 @@ Object.defineProperty(window, 'process', {
 })
 
 // Mock wagmi providers for testing
-jest.mock('wagmi', () => ({
-  useAccount: () => ({
-    isConnected: true,
-    address: '0x1234567890123456789012345678901234567890',
-  }),
-  useWriteContract: () => ({
-    writeContract: jest.fn(),
-    data: '0x123',
-    isPending: false,
-  }),
-  useWaitForTransactionReceipt: () => ({
-    isLoading: false,
-  }),
-  useWatchContractEvent: () => ({
-    // Mock implementation
-  }),
-}))
+import { vi } from 'vitest'
+
+vi.mock('wagmi', () => {
+  return {
+    useAccount: () => ({
+      isConnected: true,
+      address: '0x1234567890123456789012345678901234567890',
+    }),
+    useWriteContract: () => ({
+      writeContract: vi.fn(),
+      data: '0x123',
+      isPending: false,
+    }),
+    useWaitForTransactionReceipt: () => ({
+      isLoading: false,
+    }),
+    useWatchContractEvent: () => ({
+      // Mock implementation
+    }),
+  }
+})
 
 // Mock RainbowKit
-jest.mock('@rainbow-me/rainbowkit', () => ({
-  ConnectButton: () => <button>Connect Wallet</button>,
-}))
+vi.mock('@rainbow-me/rainbowkit', () => {
+  return {
+    ConnectButton: () => null,
+  }
+})
 
 // Mock react-hot-toast
-jest.mock('react-hot-toast', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-    loading: jest.fn(),
-    dismiss: jest.fn(),
-  },
-  Toaster: () => <div data-testid="toaster" />,
-}))
+vi.mock('react-hot-toast', () => {
+  return {
+    toast: {
+      success: vi.fn(),
+      error: vi.fn(),
+      loading: vi.fn(),
+      dismiss: vi.fn(),
+    },
+    Toaster: () => null,
+  }
+})
