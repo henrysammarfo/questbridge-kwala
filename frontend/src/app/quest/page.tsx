@@ -26,6 +26,17 @@ export default function Quest() {
     },
   })
 
+  // Check if user has completed quest
+  const { data: questCompleted, refetch: refetchQuestStatus } = useReadContract({
+    address: QUEST_TOKEN_ADDRESS,
+    abi: questTokenABI,
+    functionName: 'hasCompletedQuest',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address,
+    },
+  })
+
   // Watch for mint events from faucet
   useWatchContractEvent({
     address: QUEST_TOKEN_ADDRESS,
@@ -57,8 +68,8 @@ export default function Quest() {
       await writeFaucet({
         address: QUEST_TOKEN_ADDRESS,
         abi: questTokenABI,
-        functionName: 'mint',
-        args: [address, BigInt(faucetAmount)],
+        functionName: 'claimFaucet',
+        args: [BigInt(faucetAmount)],
       })
 
       toast.success(`Faucet claim submitted! You will receive ${faucetAmount} QuestTokens.`, {
@@ -91,10 +102,15 @@ export default function Quest() {
       return
     }
 
-    // Simple quest validation - you can make this more sophisticated
-    const correctAnswer = 'questbridge'
-    if (questAnswer.toLowerCase() !== correctAnswer) {
-      toast.error('Wrong answer! Try again or check the hint.')
+    // Check if quest already completed
+    if (questCompleted) {
+      toast.error('You have already completed this quest!', {
+        style: {
+          background: 'var(--destructive)',
+          color: 'var(--destructive-foreground)',
+          borderRadius: 'var(--radius)',
+        },
+      })
       return
     }
 
@@ -103,11 +119,11 @@ export default function Quest() {
       await writeQuest({
         address: QUEST_TOKEN_ADDRESS,
         abi: questTokenABI,
-        functionName: 'mint',
-        args: [address, BigInt(50)], // Reward 50 tokens for completing quest
+        functionName: 'completeQuest',
+        args: [questAnswer],
       })
 
-      toast.success('Quest completed! You earned 50 QuestTokens!', {
+      toast.success('Quest completed! You earned 50 QuestTokens and NFT minting has been triggered!', {
         duration: 5000,
         style: {
           background: 'var(--card)',
@@ -117,6 +133,9 @@ export default function Quest() {
           boxShadow: 'var(--shadow-x-offset) var(--shadow-y-offset) var(--shadow-blur) var(--shadow-spread) var(--shadow-color)',
         },
       })
+
+      // Refresh quest status
+      refetchQuestStatus()
     } catch (error) {
       console.error('Quest completion error:', error)
       toast.error('Failed to complete quest. Please try again.', {
@@ -266,13 +285,21 @@ export default function Quest() {
                 </p>
               </div>
 
-              <button
-                onClick={handleCompleteQuest}
-                disabled={isLoading || isQuestPending || !questAnswer.trim()}
-                className="w-full bg-chart3 hover:bg-chart3/90 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 px-6 rounded-[var(--radius)] font-semibold font-sans transition-colors"
-              >
-                {isLoading || isQuestPending ? 'Completing Quest...' : 'Complete Quest and Earn Rewards'}
-              </button>
+              {questCompleted ? (
+                <div className="w-full bg-muted border border-border rounded-[var(--radius)] p-4 text-center">
+                  <p className="text-muted-foreground font-sans">
+                    Quest Already Completed
+                  </p>
+                </div>
+              ) : (
+                <button
+                  onClick={handleCompleteQuest}
+                  disabled={isLoading || isQuestPending || !questAnswer.trim()}
+                  className="w-full bg-chart3 hover:bg-chart3/90 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 px-6 rounded-[var(--radius)] font-semibold font-sans transition-colors"
+                >
+                  {isLoading || isQuestPending ? 'Completing Quest...' : 'Complete Quest and Earn Rewards'}
+                </button>
+              )}
             </div>
           )}
         </div>

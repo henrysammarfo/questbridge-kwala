@@ -17,6 +17,9 @@ contract QuestToken is ERC20, Ownable {
     uint256 private constant MAX_SUPPLY = 1_000_000 * 10**18; // 1M tokens
     uint256 private constant INITIAL_MINT = 1000 * 10**18; // 1000 tokens
 
+    /// @dev Mapping to track quest completions (one-time only)
+    mapping(address => bool) public questCompleted;
+
     /**
      * @dev Constructor initializes the token with name and symbol
      * Mints initial supply to deployer for quest rewards
@@ -71,19 +74,57 @@ contract QuestToken is ERC20, Ownable {
     }
 
     /**
-     * @dev Mint new tokens (owner only)
-     * @param to Address to mint tokens to
-     * @param amount Amount of tokens to mint
-     */
-    function mint(address to, uint256 amount) external onlyOwner {
-        require(to != address(0), "QuestToken: cannot mint to zero address");
-        require(
-            totalSupply() + amount <= MAX_SUPPLY,
-            "QuestToken: max supply exceeded"
-        );
+      * @dev Mint new tokens (owner only)
+      * @param to Address to mint tokens to
+      * @param amount Amount of tokens to mint
+      */
+     function mint(address to, uint256 amount) external onlyOwner {
+         require(to != address(0), "QuestToken: cannot mint to zero address");
+         require(
+             totalSupply() + amount <= MAX_SUPPLY,
+             "QuestToken: max supply exceeded"
+         );
 
-        _mint(to, amount);
-    }
+         _mint(to, amount);
+     }
+
+     /**
+      * @dev Claim tokens from faucet (public function)
+      * @param amount Amount of tokens to claim (50, 100, or 200)
+      */
+     function claimFaucet(uint256 amount) external {
+         require(amount == 50 * 10**18 || amount == 100 * 10**18 || amount == 200 * 10**18,
+                 "QuestToken: invalid faucet amount");
+         require(totalSupply() + amount <= MAX_SUPPLY, "QuestToken: max supply exceeded");
+         require(balanceOf(msg.sender) == 0, "QuestToken: can only claim once");
+
+         _mint(msg.sender, amount);
+     }
+
+     /**
+      * @dev Complete quest and earn tokens (one-time only)
+      * @param answer The answer to the quest riddle
+      */
+     function completeQuest(string calldata answer) external {
+         require(!questCompleted[msg.sender], "QuestToken: quest already completed");
+         require(totalSupply() + (50 * 10**18) <= MAX_SUPPLY, "QuestToken: max supply exceeded");
+
+         // Simple quest validation - can be made more sophisticated
+         require(keccak256(bytes(answer)) == keccak256(bytes("questbridge")),
+                 "QuestToken: wrong answer");
+
+         questCompleted[msg.sender] = true;
+         _mint(msg.sender, 50 * 10**18); // Reward 50 tokens
+     }
+
+     /**
+      * @dev Check if address has completed the quest
+      * @param account Address to check
+      * @return bool Quest completion status
+      */
+     function hasCompletedQuest(address account) external view returns (bool) {
+         return questCompleted[account];
+     }
 
     /**
      * @dev Burn tokens from caller's balance

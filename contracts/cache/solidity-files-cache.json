@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\jessi\\OneDrive\\Desktop\\questbridge-kwala\\contracts\\QuestToken.sol": {
-      "lastModificationDate": 1759411394770,
-      "contentHash": "9a0f1b0d223e0e39db08bc8678c2887c",
+      "lastModificationDate": 1759490026717,
+      "contentHash": "fd043d8fb8c5f59468fa52d2d9db6525",
       "sourceName": "QuestToken.sol",
       "solcConfig": {
         "version": "0.8.27",
