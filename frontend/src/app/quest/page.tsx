@@ -34,7 +34,7 @@ export default function Quest() {
     onLogs(logs) {
       const latestLog = logs[logs.length - 1]
       if (latestLog.args.to?.toLowerCase() === address?.toLowerCase() && latestLog.args.from === DEPLOYER_ADDRESS) {
-        toast.success(`🎉 Faucet claimed! You received ${Number(latestLog.args.value)} QuestTokens!`, {
+        toast.success(`Faucet claimed! You received ${Number(latestLog.args.value)} QuestTokens!`, {
           duration: 5000,
           style: {
             background: 'var(--card)',
@@ -61,7 +61,7 @@ export default function Quest() {
         args: [address, BigInt(faucetAmount)],
       })
 
-      toast.success(`Faucet claim submitted! You'll receive ${faucetAmount} QuestTokens.`, {
+      toast.success(`Faucet claim submitted! You will receive ${faucetAmount} QuestTokens.`, {
         duration: 4000,
         style: {
           background: 'var(--card)',
@@ -73,7 +73,13 @@ export default function Quest() {
       })
     } catch (error) {
       console.error('Faucet claim error:', error)
-      toast.error('Failed to claim from faucet. Please try again.')
+      toast.error('Failed to claim from faucet. Please try again.', {
+        style: {
+          background: 'var(--destructive)',
+          color: 'var(--destructive-foreground)',
+          borderRadius: 'var(--radius)',
+        },
+      })
     } finally {
       setIsLoading(false)
     }
@@ -88,7 +94,7 @@ export default function Quest() {
     // Simple quest validation - you can make this more sophisticated
     const correctAnswer = 'questbridge'
     if (questAnswer.toLowerCase() !== correctAnswer) {
-      toast.error('❌ Wrong answer! Try again or check the hint.')
+      toast.error('Wrong answer! Try again or check the hint.')
       return
     }
 
@@ -101,7 +107,7 @@ export default function Quest() {
         args: [address, BigInt(50)], // Reward 50 tokens for completing quest
       })
 
-      toast.success('🎉 Quest completed! You earned 50 QuestTokens!', {
+      toast.success('Quest completed! You earned 50 QuestTokens!', {
         duration: 5000,
         style: {
           background: 'var(--card)',
@@ -113,7 +119,13 @@ export default function Quest() {
       })
     } catch (error) {
       console.error('Quest completion error:', error)
-      toast.error('Failed to complete quest. Please try again.')
+      toast.error('Failed to complete quest. Please try again.', {
+        style: {
+          background: 'var(--destructive)',
+          color: 'var(--destructive-foreground)',
+          borderRadius: 'var(--radius)',
+        },
+      })
     } finally {
       setIsLoading(false)
     }
@@ -152,7 +164,7 @@ export default function Quest() {
               </p>
               {balance && (
                 <p className="text-sm font-sans text-chart2 mt-1">
-                  💰 Balance: <strong>{Number(balance).toLocaleString()} QUEST</strong>
+                  Balance: <strong>{Number(balance).toLocaleString()} QUEST</strong>
                 </p>
               )}
             </div>
@@ -169,7 +181,7 @@ export default function Quest() {
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                🚰 Claim Tokens
+                Claim Tokens
               </button>
               <button
                 onClick={() => setActiveTab('quest')}
@@ -179,7 +191,7 @@ export default function Quest() {
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                🏆 Complete Quest
+                Complete Quest
               </button>
             </div>
           </div>
@@ -188,7 +200,7 @@ export default function Quest() {
           {activeTab === 'faucet' && (
             <div className="bg-card rounded-[var(--radius)] shadow-[var(--shadow-x-offset)_var(--shadow-y-offset)_var(--shadow-blur)_var(--shadow-spread)_var(--shadow-color)] p-8 border border-border">
               <h2 className="text-2xl font-bold font-sans text-card-foreground mb-4">
-                🚰 QuestToken Faucet
+                QuestToken Faucet
               </h2>
               <p className="text-muted-foreground font-sans mb-6">
                 Claim free QuestTokens to participate in quests and earn NFT rewards.
@@ -224,7 +236,7 @@ export default function Quest() {
           {activeTab === 'quest' && (
             <div className="bg-card rounded-[var(--radius)] shadow-[var(--shadow-x-offset)_var(--shadow-y-offset)_var(--shadow-blur)_var(--shadow-spread)_var(--shadow-color)] p-8 border border-border">
               <h2 className="text-2xl font-bold font-sans text-card-foreground mb-4">
-                🏆 Daily Quest Challenge
+                Daily Quest Challenge
               </h2>
               <p className="text-muted-foreground font-sans mb-6">
                 Complete the quest to earn QuestTokens and trigger NFT rewards on Sepolia.
@@ -232,7 +244,7 @@ export default function Quest() {
 
               <div className="bg-chart3/10 border border-chart3/20 rounded-[var(--radius)] p-6 mb-6">
                 <h3 className="text-lg font-semibold font-sans text-chart3 mb-3">
-                  📝 Quest: What is the name of this platform?
+                  Quest: What is the name of this platform?
                 </h3>
                 <p className="text-chart3/80 font-sans mb-4">
                   <strong>Hint:</strong> It's the bridge that connects quests across different chains...
@@ -248,9 +260,9 @@ export default function Quest() {
 
               <div className="bg-chart1/10 border border-chart1/20 rounded-[var(--radius)] p-4 mb-6">
                 <p className="text-chart1 text-sm font-sans">
-                  <strong>✅ Reward:</strong> 50 QuestTokens + NFT minting on Sepolia
+                  <strong>Reward:</strong> 50 QuestTokens + NFT minting on Sepolia
                   <br />
-                  <strong>🔗 Network:</strong> Polygon Amoy (Chain ID: 80002)
+                  <strong>Network:</strong> Polygon Amoy (Chain ID: 80002)
                 </p>
               </div>
 
@@ -259,7 +271,7 @@ export default function Quest() {
                 disabled={isLoading || isQuestPending || !questAnswer.trim()}
                 className="w-full bg-chart3 hover:bg-chart3/90 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 px-6 rounded-[var(--radius)] font-semibold font-sans transition-colors"
               >
-                {isLoading || isQuestPending ? 'Completing Quest...' : 'Complete Quest & Earn Rewards'}
+                {isLoading || isQuestPending ? 'Completing Quest...' : 'Complete Quest and Earn Rewards'}
               </button>
             </div>
           )}
