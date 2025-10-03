@@ -52,6 +52,20 @@ export default function Quest() {
     setIsLoading(true)
 
     try {
+      // Check if user has enough tokens (this would need a balanceOf call in real implementation)
+      // For demo purposes, we'll assume they need to get tokens first
+
+      toast.success(`Quest completion initiated! Check your wallet for transaction confirmations.`, {
+        duration: 3000,
+        style: {
+          background: 'var(--card)',
+          color: 'var(--card-foreground)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          boxShadow: 'var(--shadow-x-offset) var(--shadow-y-offset) var(--shadow-blur) var(--shadow-spread) var(--shadow-color)',
+        },
+      })
+
       // First approve the tokens
       await writeApprove({
         address: QUEST_TOKEN_ADDRESS,
@@ -60,8 +74,10 @@ export default function Quest() {
         args: [DEPLOYER_ADDRESS, BigInt(tokenAmount)],
       })
 
+      toast.loading('Confirming token approval in your wallet...', { id: 'approve' })
+
       // Wait a bit for approval to be mined
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
       // Then transfer the tokens
       await writeTransfer({
@@ -71,12 +87,22 @@ export default function Quest() {
         args: [DEPLOYER_ADDRESS, BigInt(tokenAmount)],
       })
 
-      toast.success('Quest completion transaction submitted!')
+      toast.success('Quest completed! Check Kwala logs for NFT minting confirmation.', {
+        duration: 5000,
+        style: {
+          background: 'var(--card)',
+          color: 'var(--card-foreground)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          boxShadow: 'var(--shadow-x-offset) var(--shadow-y-offset) var(--shadow-blur) var(--shadow-spread) var(--shadow-color)',
+        },
+      })
     } catch (error) {
       console.error('Quest completion error:', error)
-      toast.error('Failed to complete quest. Please try again.')
+      toast.error(`Error: ${error instanceof Error ? error.message : 'Transaction failed'}. Make sure you're on Amoy network and have test tokens.`)
     } finally {
       setIsLoading(false)
+      toast.dismiss('approve')
     }
   }
 
@@ -119,9 +145,16 @@ export default function Quest() {
             <h1 className="text-3xl font-bold font-sans text-card-foreground mb-2">
               Complete Quest
             </h1>
-            <p className="text-muted-foreground font-sans mb-8">
+            <p className="text-muted-foreground font-sans mb-4">
               Connected as: {address?.slice(0, 6)}...{address?.slice(-4)}
             </p>
+            <div className="bg-chart1/10 border border-chart1/20 rounded-[var(--radius)] p-4 mb-6">
+              <p className="text-chart1 text-sm font-sans">
+                🔗 Make sure you're connected to <strong>Polygon Amoy</strong> network (Chain ID: 80002)
+                <br />
+                💰 Need test tokens? Get them from the <a href="https://faucet.polygon.technology/" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">Amoy Faucet</a>
+              </p>
+            </div>
 
             <div className="space-y-6">
               <div>

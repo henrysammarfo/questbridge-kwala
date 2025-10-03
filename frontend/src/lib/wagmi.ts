@@ -7,7 +7,9 @@ export const config = createConfig({
   connectors: [
     injected(),
     metaMask(),
-    walletConnect({ projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID! }),
+    walletConnect({
+      projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'demo-project-id'
+    }),
   ],
   transports: {
     [polygonAmoy.id]: http(process.env.NEXT_PUBLIC_ALCHEMY_MUMBAI_URL),

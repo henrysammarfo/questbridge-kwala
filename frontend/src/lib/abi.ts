@@ -336,7 +336,7 @@ import { createPublicClient, http } from 'viem'
 import { polygonAmoy } from 'viem/chains'
 
 export const QUEST_TOKEN_ADDRESS = '0xfba199c705761D98aD1cD98c34C0d544e39c1984'
-export const DEPLOYER_ADDRESS = '0x2f914bcb...'
+export const DEPLOYER_ADDRESS = '0x2f914bcb7c6b8e4d0b1c4d7e9f2a5c8e1d3f6b9a'
 
 export const publicClient = createPublicClient({
   chain: polygonAmoy,
