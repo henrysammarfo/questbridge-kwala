@@ -1,11 +1,38 @@
 'use client'
 
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { useAccount } from 'wagmi'
+import { useAccount, useConnectors } from 'wagmi'
 import Link from 'next/link'
 
 export default function Home() {
   const { isConnected } = useAccount()
+  const connectors = useConnectors()
+
+  // Check if MetaMask is installed
+  const hasMetaMask = typeof window !== 'undefined' && (window as any).ethereum?.isMetaMask
+  const ethereumAddress = typeof window !== 'undefined' ? (window as any).ethereum?.selectedAddress : null
+  const ethereumChainId = typeof window !== 'undefined' ? (window as any).ethereum?.chainId : null
+  const hasEthereum = typeof window !== 'undefined' && (window as any).ethereum
+
+  // Debug MetaMask detection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const ethereum = (window as any).ethereum
+      console.log('=== MetaMask Debug Info ===')
+      console.log('window.ethereum exists:', !!ethereum)
+      console.log('window.ethereum.isMetaMask:', ethereum?.isMetaMask)
+      console.log('window.ethereum.isConnected:', ethereum?.isConnected)
+      console.log('window.ethereum.selectedAddress:', ethereum?.selectedAddress)
+      console.log('window.ethereum.chainId:', ethereum?.chainId)
+      console.log('Available connectors:', connectors.map(c => ({
+        name: c.name,
+        id: c.id,
+        ready: c.ready,
+        uid: c.uid
+      })))
+      console.log('========================')
+    }
+  }, [hasMetaMask, connectors])
 
   return (
     <div className="min-h-screen bg-background">
@@ -20,6 +47,37 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <ConnectButton />
+          </div>
+
+          {/* Debug Info - Remove in production */}
+          <div className="bg-muted/30 rounded-[var(--radius)] p-4 mb-8 border border-border max-w-2xl mx-auto">
+            <details className="text-sm">
+              <summary className="cursor-pointer text-foreground font-sans mb-2">Debug: Wallet Detection</summary>
+              <div className="space-y-2 text-muted-foreground font-sans text-xs">
+                <div>Ethereum Provider: {hasEthereum ? 'Available' : 'Not Found'}</div>
+                <div>MetaMask Installed: {hasMetaMask ? 'Yes' : 'No'}</div>
+                <div>Ethereum Address: {ethereumAddress || 'None'}</div>
+                <div>Chain ID: {ethereumChainId || 'Unknown'}</div>
+                <div>Connectors Available: {connectors.length}</div>
+                <div className="space-y-1">
+                  {connectors.map((connector, index) => (
+                    <div key={index}>
+                      {connector.name} - Ready: {connector.ready ? 'Yes' : 'No'}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 p-2 bg-background rounded text-xs">
+                  <strong>Check browser console for detailed logs</strong>
+                </div>
+                <div className="mt-2 p-2 bg-chart1/10 rounded text-xs">
+                  <strong>Troubleshooting:</strong>
+                  <br />1. Make sure MetaMask is installed
+                  <br />2. Ensure MetaMask is unlocked
+                  <br />3. Check if you are on the correct page
+                  <br />4. Try refreshing the page
+                </div>
+              </div>
+            </details>
           </div>
 
           {isConnected && (
